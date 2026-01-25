@@ -19,10 +19,10 @@ import static org.mockito.Mockito.when;
 @RunWith(Parameterized.class)
 public class BurgerParamsTest {
     private Burger burger;
-    private Bun bun;
-    private List<Ingredient> ingredients;
+    private final Bun bun;
+    private final List<Ingredient> ingredients;
     private float expectedPrice;
-    private String expectedReceipt;
+    private final String expectedReceipt;
     private final float delta = 0.0000001f;
 
     public BurgerParamsTest(String testName, Bun bun, List<Ingredient> ingredients, float expectedPrice, String expectedReceipt) {

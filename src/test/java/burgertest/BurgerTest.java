@@ -18,11 +18,11 @@ public class BurgerTest {
     @Mock
     private Bun bun;
     @Mock
-    private Ingredient ingredient0;
+    private Ingredient sauceMock;
     @Mock
-    private Ingredient ingredient1;
+    private Ingredient fillingMock;
     @Mock
-    private Ingredient ingredient2;
+    private Ingredient anotherFillingMock;
 
     @Before
     public void setUp() {
@@ -53,34 +53,34 @@ public class BurgerTest {
     public void addIngredient() {
         Assert.assertEquals(0, burger.ingredients.size());
 
-        burger.addIngredient(ingredient0);
+        burger.addIngredient(sauceMock);
         Assert.assertEquals(1, burger.ingredients.size());
 
-        burger.addIngredient(ingredient1);
+        burger.addIngredient(fillingMock);
         Assert.assertEquals(2, burger.ingredients.size());
 
-        Assert.assertEquals(ingredient0, burger.ingredients.get(0));
-        Assert.assertEquals(ingredient1, burger.ingredients.get(1));
+        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
+        Assert.assertEquals(fillingMock, burger.ingredients.get(1));
     }
 
     @Test
     public void removeIngredient() {
         Assert.assertEquals(0, burger.ingredients.size());
 
-        burger.addIngredient(ingredient0);
-        burger.addIngredient(ingredient1);
-        burger.addIngredient(ingredient2);
+        burger.addIngredient(sauceMock);
+        burger.addIngredient(fillingMock);
+        burger.addIngredient(anotherFillingMock);
 
         burger.removeIngredient(1);
 
         Assert.assertEquals(2, burger.ingredients.size());
-        Assert.assertEquals(ingredient0, burger.ingredients.get(0));
-        Assert.assertEquals(ingredient2, burger.ingredients.get(1));
+        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
+        Assert.assertEquals(anotherFillingMock, burger.ingredients.get(1));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void removeIngredientWInvalidIndexThrowsException() {
-        burger.addIngredient(ingredient0);
+        burger.addIngredient(sauceMock);
 
         burger.removeIngredient(1);
     }
@@ -89,67 +89,67 @@ public class BurgerTest {
     public void moveIngredient() {
         Assert.assertEquals(0, burger.ingredients.size());
 
-        burger.addIngredient(ingredient0);
-        burger.addIngredient(ingredient1);
-        burger.addIngredient(ingredient2);
+        burger.addIngredient(sauceMock);
+        burger.addIngredient(fillingMock);
+        burger.addIngredient(anotherFillingMock);
 
         burger.moveIngredient(2, 1);
 
         Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertEquals(ingredient0, burger.ingredients.get(0));
-        Assert.assertEquals(ingredient2, burger.ingredients.get(1));
-        Assert.assertEquals(ingredient1, burger.ingredients.get(2));
+        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
+        Assert.assertEquals(anotherFillingMock, burger.ingredients.get(1));
+        Assert.assertEquals(fillingMock, burger.ingredients.get(2));
     }
 
     @Test
     public void moveIngredientToSamePosition() {
         Assert.assertEquals(0, burger.ingredients.size());
 
-        burger.addIngredient(ingredient0);
-        burger.addIngredient(ingredient1);
-        burger.addIngredient(ingredient2);
+        burger.addIngredient(sauceMock);
+        burger.addIngredient(fillingMock);
+        burger.addIngredient(anotherFillingMock);
 
         burger.moveIngredient(1, 1);
 
         Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertEquals(ingredient0, burger.ingredients.get(0));
-        Assert.assertEquals(ingredient1, burger.ingredients.get(1));
-        Assert.assertEquals(ingredient2, burger.ingredients.get(2));
+        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
+        Assert.assertEquals(fillingMock, burger.ingredients.get(1));
+        Assert.assertEquals(anotherFillingMock, burger.ingredients.get(2));
     }
 
     @Test
     public void moveIngredientFromFirstToLast() {
-        burger.addIngredient(ingredient0);
-        burger.addIngredient(ingredient1);
-        burger.addIngredient(ingredient2);
+        burger.addIngredient(sauceMock);
+        burger.addIngredient(fillingMock);
+        burger.addIngredient(anotherFillingMock);
 
         burger.moveIngredient(0, 2);
 
         Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertSame(ingredient1, burger.ingredients.get(0));
-        Assert.assertSame(ingredient2, burger.ingredients.get(1));
-        Assert.assertSame(ingredient0, burger.ingredients.get(2));
+        Assert.assertSame(fillingMock, burger.ingredients.get(0));
+        Assert.assertSame(anotherFillingMock, burger.ingredients.get(1));
+        Assert.assertSame(sauceMock, burger.ingredients.get(2));
     }
 
     @Test
     public void moveIngredientFromLastToFirst() {
-        burger.addIngredient(ingredient0);
-        burger.addIngredient(ingredient1);
-        burger.addIngredient(ingredient2);
+        burger.addIngredient(sauceMock);
+        burger.addIngredient(fillingMock);
+        burger.addIngredient(anotherFillingMock);
 
         burger.moveIngredient(2, 0);
 
         Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertSame(ingredient2, burger.ingredients.get(0));
-        Assert.assertSame(ingredient0, burger.ingredients.get(1));
-        Assert.assertSame(ingredient1, burger.ingredients.get(2));
+        Assert.assertSame(anotherFillingMock, burger.ingredients.get(0));
+        Assert.assertSame(sauceMock, burger.ingredients.get(1));
+        Assert.assertSame(fillingMock, burger.ingredients.get(2));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void moveIngredientWInvalidIndexThrowsException() {
         Assert.assertEquals(0, burger.ingredients.size());
 
-        burger.addIngredient(ingredient1);
+        burger.addIngredient(fillingMock);
 
         burger.moveIngredient(0, 5);
     }
