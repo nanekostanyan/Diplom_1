@@ -1,5 +1,7 @@
 package burgertest;
 
+import jdk.jfr.Description;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +16,8 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BurgerTest {
+    SoftAssertions softly = new SoftAssertions();
+
     private Burger burger;
     @Mock
     private Bun bun;
@@ -30,43 +34,58 @@ public class BurgerTest {
     }
 
     @Test
-    public void setBun() {
+    @Description("Проверяем что по умолчанию поле Bun равно null")
+    public void bunIsNullByDefaultTest() {
         Assert.assertNull(burger.bun);
+    }
 
+    @Test
+    @Description("Проверяем добавление булочки с помощью метода setBuns")
+    public void setBunTest() {
         burger.setBuns(bun);
 
         Assert.assertSame(bun, burger.bun);
     }
 
     @Test
-    public void setBunTwiceReplacesBun() {
-        Bun bun2 = mock(Bun.class);
+    @Description("Проверяем, что повторное добавление булочки заменяет предыдущую булочку")
+    public void setBunTwiceReplacesBunTest() {
+        Bun anotherOneBun = mock(Bun.class);
 
         burger.setBuns(bun);
-        burger.setBuns(bun2);
+        burger.setBuns(anotherOneBun);
 
-        Assert.assertSame(bun2, burger.bun);
+        Assert.assertSame(anotherOneBun, burger.bun);
         Assert.assertNotSame(bun, burger.bun);
     }
 
     @Test
-    public void addIngredient() {
+    @Description("Проверяем что по умолчанию поле Ingredients пустое")
+    public void ingredientsIsEmptyByDefaultTest() {
         Assert.assertEquals(0, burger.ingredients.size());
+    }
 
+    @Test
+    @Description("Проверяем добавление ингредиентов через метод addIngredient")
+    public void addIngredientTest() {
         burger.addIngredient(sauceMock);
-        Assert.assertEquals(1, burger.ingredients.size());
+        softly.assertThat(burger.ingredients.size()).
+                as("Бургер должен содержать ровно 1 ингредиент").
+                isEqualTo(1);
 
         burger.addIngredient(fillingMock);
-        Assert.assertEquals(2, burger.ingredients.size());
+        softly.assertThat(burger.ingredients.size()).
+                as("Бургер должен содержать ровно 2 ингредиента").
+                isEqualTo(2);
 
+        softly.assertAll();
         Assert.assertEquals(sauceMock, burger.ingredients.get(0));
         Assert.assertEquals(fillingMock, burger.ingredients.get(1));
     }
 
     @Test
-    public void removeIngredient() {
-        Assert.assertEquals(0, burger.ingredients.size());
-
+    @Description("Проверяем удаление ингредиента из списка ингредиентов через метод removeIngredient")
+    public void removeIngredientTest() {
         burger.addIngredient(sauceMock);
         burger.addIngredient(fillingMock);
         burger.addIngredient(anotherFillingMock);
@@ -78,17 +97,17 @@ public class BurgerTest {
         Assert.assertEquals(anotherFillingMock, burger.ingredients.get(1));
     }
 
+    @Description("Проверяем, что попытка удаления ингредиента из пустого списка, приводит к панике")
     @Test(expected = IndexOutOfBoundsException.class)
-    public void removeIngredientWInvalidIndexThrowsException() {
+    public void removeIngredientWInvalidIndexThrowsExceptionTest() {
         burger.addIngredient(sauceMock);
 
         burger.removeIngredient(1);
     }
 
     @Test
-    public void moveIngredient() {
-        Assert.assertEquals(0, burger.ingredients.size());
-
+    @Description("Проверяем перемещение ингредиента в списке ингредиентов через метод moveIngredient")
+    public void moveIngredientTest() {
         burger.addIngredient(sauceMock);
         burger.addIngredient(fillingMock);
         burger.addIngredient(anotherFillingMock);
@@ -102,9 +121,8 @@ public class BurgerTest {
     }
 
     @Test
-    public void moveIngredientToSamePosition() {
-        Assert.assertEquals(0, burger.ingredients.size());
-
+    @Description("Проверяем, что перемещение ингредиента на ту же позицию, где он расположен, не приведёт к изменению списка")
+    public void moveIngredientToSamePositionTest() {
         burger.addIngredient(sauceMock);
         burger.addIngredient(fillingMock);
         burger.addIngredient(anotherFillingMock);
@@ -118,7 +136,8 @@ public class BurgerTest {
     }
 
     @Test
-    public void moveIngredientFromFirstToLast() {
+    @Description("Проверяем перемещение ингредиента с нулевой позиции на последнюю")
+    public void moveIngredientFromFirstToLastTest() {
         burger.addIngredient(sauceMock);
         burger.addIngredient(fillingMock);
         burger.addIngredient(anotherFillingMock);
@@ -132,7 +151,8 @@ public class BurgerTest {
     }
 
     @Test
-    public void moveIngredientFromLastToFirst() {
+    @Description("Проверяем перемещение ингредиента с последней позиции на первую")
+    public void moveIngredientFromLastToFirstTest() {
         burger.addIngredient(sauceMock);
         burger.addIngredient(fillingMock);
         burger.addIngredient(anotherFillingMock);
@@ -146,23 +166,22 @@ public class BurgerTest {
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void moveIngredientWInvalidIndexThrowsException() {
-        Assert.assertEquals(0, burger.ingredients.size());
-
+    @Description("Проверяем, что попытка перемещения ингредиента за пределы списка, приводит к панике")
+    public void moveIngredientWInvalidIndexThrowsExceptionTest() {
         burger.addIngredient(fillingMock);
 
         burger.moveIngredient(0, 5);
     }
 
     @Test(expected = NullPointerException.class)
-    public void getPriceWoBunThrowsException() {
-        Assert.assertNull(burger.bun);
+    @Description("Проверяем, что попытка получения цены бургера, при отсутствии булочки, приводит к панике")
+    public void getPriceWoBunThrowsExceptionTest() {
         burger.getPrice();
     }
 
     @Test(expected = NullPointerException.class)
-    public void getReceiptWoBunThrowsException() {
-        Assert.assertNull(burger.bun);
+    @Description("Проверяем, что попытка получения рецепта бургера, при отсутствии булочки, приводит к панике")
+    public void getReceiptWoBunThrowsExceptionTest() {
         burger.getReceipt();
     }
 }

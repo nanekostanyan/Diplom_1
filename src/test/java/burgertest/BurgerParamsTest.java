@@ -1,10 +1,12 @@
 package burgertest;
 
+import jdk.jfr.Description;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mock;
 import praktikum.Bun;
 import praktikum.Burger;
 import praktikum.Ingredient;
@@ -19,6 +21,7 @@ import static org.mockito.Mockito.when;
 @RunWith(Parameterized.class)
 public class BurgerParamsTest {
     private Burger burger;
+    @Mock
     private final Bun bun;
     private final List<Ingredient> ingredients;
     private float expectedPrice;
@@ -123,14 +126,16 @@ public class BurgerParamsTest {
     }
 
     @Test
-    public void getPrice() {
+    @Description("Проверяем что цена соответствует ожидаемой")
+    public void getPriceTest() {
         float price = burger.getPrice();
 
         Assert.assertEquals("Цена отличается от ожидаемой", expectedPrice, price, delta);
     }
 
     @Test
-    public void getReceipt() {
+    @Description("Проверяем что рецепт соответствует ожидаемому")
+    public void getReceiptTest() {
         String receipt = burger.getReceipt();
 
         // Не можем просто сравнить полученный рецепт с ожидаемым из-за вещественной цены. Так как нельзя менять код
