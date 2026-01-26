@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BurgerTest {
-    SoftAssertions softly = new SoftAssertions();
+    private final SoftAssertions softly = new SoftAssertions();
 
     private Burger burger;
     @Mock
@@ -36,7 +36,7 @@ public class BurgerTest {
     @Test
     @Description("Проверяем что по умолчанию поле Bun равно null")
     public void bunIsNullByDefaultTest() {
-        Assert.assertNull(burger.bun);
+        Assert.assertNull("Ожидается, что если ещё не добавляли булочку, её не будет", burger.bun);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class BurgerTest {
     public void setBunTest() {
         burger.setBuns(bun);
 
-        Assert.assertSame(bun, burger.bun);
+        Assert.assertSame("Ожидается, что булочка будет идентична добавленной", bun, burger.bun);
     }
 
     @Test
@@ -55,8 +55,14 @@ public class BurgerTest {
         burger.setBuns(bun);
         burger.setBuns(anotherOneBun);
 
-        Assert.assertSame(anotherOneBun, burger.bun);
-        Assert.assertNotSame(bun, burger.bun);
+        softly.assertThat(burger.bun).
+                as("Ожидаем, что булочка будет идентична последней добавленной булочке").
+                isSameAs(anotherOneBun);
+        softly.assertThat(burger.bun).
+                as("Ожидаем, что булочка будет отличаться от первой добавленной булочки").
+                isNotSameAs(bun);
+
+        softly.assertAll();
     }
 
     @Test
@@ -78,9 +84,14 @@ public class BurgerTest {
                 as("Бургер должен содержать ровно 2 ингредиента").
                 isEqualTo(2);
 
+        softly.assertThat(burger.ingredients.get(0)).
+                as("Ожидаем увидеть на 0 позиции sauceMock").
+                isEqualTo(sauceMock);
+        softly.assertThat(burger.ingredients.get(1)).
+                as("Ожидаем увидеть на 1 позиции fillingMock").
+                isEqualTo(fillingMock);
+
         softly.assertAll();
-        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
-        Assert.assertEquals(fillingMock, burger.ingredients.get(1));
     }
 
     @Test
@@ -92,9 +103,17 @@ public class BurgerTest {
 
         burger.removeIngredient(1);
 
-        Assert.assertEquals(2, burger.ingredients.size());
-        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
-        Assert.assertEquals(anotherFillingMock, burger.ingredients.get(1));
+        // Добавила всё в один softly assert, потому что падение первой проверки на длину может привести к выходу
+        // за диапазон на следующих проверках
+        softly.assertThat(burger.ingredients).
+                describedAs("Список не должен быть пустым").
+                isNotEmpty().
+                describedAs("В списке должно быт ровно 2 ингредиента").
+                hasSize(2).
+                describedAs("Ожидаемый порядок ингредиентов: sauceMock, anotherFillingMock").
+                containsExactly(sauceMock, anotherFillingMock);
+
+        softly.assertAll();
     }
 
     @Description("Проверяем, что попытка удаления ингредиента из пустого списка, приводит к панике")
@@ -114,10 +133,15 @@ public class BurgerTest {
 
         burger.moveIngredient(2, 1);
 
-        Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
-        Assert.assertEquals(anotherFillingMock, burger.ingredients.get(1));
-        Assert.assertEquals(fillingMock, burger.ingredients.get(2));
+        softly.assertThat(burger.ingredients).
+                describedAs("Список не должен быть пустым").
+                isNotEmpty().
+                describedAs("В списке должно быт ровно 3 ингредиента").
+                hasSize(3).
+                describedAs("Ожидаемый порядок ингредиентов: sauceMock, anotherFillingMock, fillingMock").
+                containsSequence(sauceMock, anotherFillingMock, fillingMock);
+
+        softly.assertAll();
     }
 
     @Test
@@ -129,10 +153,15 @@ public class BurgerTest {
 
         burger.moveIngredient(1, 1);
 
-        Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertEquals(sauceMock, burger.ingredients.get(0));
-        Assert.assertEquals(fillingMock, burger.ingredients.get(1));
-        Assert.assertEquals(anotherFillingMock, burger.ingredients.get(2));
+        softly.assertThat(burger.ingredients).
+                describedAs("Список не должен быть пустым").
+                isNotEmpty().
+                describedAs("В списке должно быт ровно 3 ингредиента").
+                hasSize(3).
+                describedAs("Ожидаемый порядок ингредиентов: sauceMock, fillingMock, anotherFillingMock").
+                containsSequence(sauceMock, fillingMock, anotherFillingMock);
+
+        softly.assertAll();
     }
 
     @Test
@@ -144,10 +173,15 @@ public class BurgerTest {
 
         burger.moveIngredient(0, 2);
 
-        Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertSame(fillingMock, burger.ingredients.get(0));
-        Assert.assertSame(anotherFillingMock, burger.ingredients.get(1));
-        Assert.assertSame(sauceMock, burger.ingredients.get(2));
+        softly.assertThat(burger.ingredients).
+                describedAs("Список не должен быть пустым").
+                isNotEmpty().
+                describedAs("В списке должно быт ровно 3 ингредиента").
+                hasSize(3).
+                describedAs("Ожидаемый порядок ингредиентов: fillingMock, anotherFillingMock, sauceMock").
+                containsSequence(fillingMock, anotherFillingMock, sauceMock);
+
+        softly.assertAll();
     }
 
     @Test
@@ -159,10 +193,15 @@ public class BurgerTest {
 
         burger.moveIngredient(2, 0);
 
-        Assert.assertEquals(3, burger.ingredients.size());
-        Assert.assertSame(anotherFillingMock, burger.ingredients.get(0));
-        Assert.assertSame(sauceMock, burger.ingredients.get(1));
-        Assert.assertSame(fillingMock, burger.ingredients.get(2));
+        softly.assertThat(burger.ingredients).
+                describedAs("Список не должен быть пустым").
+                isNotEmpty().
+                describedAs("В списке должно быт ровно 3 ингредиента").
+                hasSize(3).
+                describedAs("Ожидаемый порядок ингредиентов: anotherFillingMock, sauceMock, fillingMock").
+                containsExactly(anotherFillingMock, sauceMock, fillingMock);
+
+        softly.assertAll();
     }
 
     @Test(expected = IndexOutOfBoundsException.class)

@@ -1,6 +1,7 @@
 package burgertest;
 
 import jdk.jfr.Description;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +16,14 @@ import praktikum.IngredientType;
 import javax.swing.*;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.within;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class BurgerParamsTest {
+    private final SoftAssertions softly = new SoftAssertions();
+
     private Burger burger;
     @Mock
     private final Bun bun;
@@ -144,16 +148,26 @@ public class BurgerParamsTest {
         String[] receiptByLines = receipt.split("\n");
         String[] expectedReceiptByLines = expectedReceipt.split("\n");
 
-        Assert.assertEquals("Количество строк рецепта отличается от ожидаемого", receiptByLines.length, expectedReceiptByLines.length);
+        softly.assertThat(receiptByLines).
+                as("Количество строк рецепта не должно отличаться от ожидаемого").
+                hasSize(expectedReceiptByLines.length);
 
-        for (int i = 0; i < receiptByLines.length; i++) {
+        // Если длина рецепта будет отличаться от ожидаемой, пройдёмся по минимуму строк, чтобы не выйти за границы диапазона
+        int minLength = Math.min(receiptByLines.length, expectedReceiptByLines.length);
+        for (int i = 0; i < minLength; i++) {
             if (receiptByLines[i].toLowerCase().startsWith("price:")) {
                 assertPrice(expectedReceiptByLines[i], receiptByLines[i]);
             } else {
-                Assert.assertEquals("Строка рецепта отличается от ожидаемой", expectedReceiptByLines[i], receiptByLines[i]);
+                softly.assertThat(receiptByLines[i]).
+                        as("Строка рецепта отличается от ожидаемой").
+                        isEqualTo(expectedReceiptByLines[i]);
             }
         }
+
+        softly.assertAll();
     }
+
+    // Вспомогательные методы
 
     public void assertPrice(String expected, String actual) {
         String expectedPriceStr = expected.toLowerCase().replace("price: ", "").trim();
@@ -163,7 +177,9 @@ public class BurgerParamsTest {
         float expectedPrice = Float.parseFloat(expectedPriceStr);
         float actualPrice = Float.parseFloat(actualPriceStr);
 
-        Assert.assertEquals("Цена в рецепте отличается от ожидаемой", expectedPrice, actualPrice, delta);
+        softly.assertThat(actualPrice).
+                as("Вещественная цена в рецепте должна быть равна или почти равна ожидаемой").
+                isCloseTo(expectedPrice, within(delta));
     }
 
     public static Bun createBunMock(String name, float price) {
